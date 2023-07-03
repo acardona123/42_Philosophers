@@ -3,148 +3,172 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alexcardona <alexcardona@student.42.fr>    +#+  +:+       +#+        */
+/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/29 16:55:16 by alexcardona       #+#    #+#             */
-/*   Updated: 2023/06/30 04:19:29 by alexcardona      ###   ########.fr       */
+/*   Updated: 2023/07/03 05:04:53 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	_init_rules(int ac, char **av, int rules[5]);
-static int	_init_forks_and_mutexes(int nb_fork, pthread_mutex_t **mutexes,
-				char **forks);
-static void	_unset_forks_and_mutexes(int nb_fork, pthread_mutex_t *mutexes,
-				char *forks);
-static int	_threads_init(	int rules[5], char *forks, pthread_mutex_t *mutexes,
-				pthread_t **philos);
-static void	*_philo_routine(void *arg);
 
 int	main(int ac, char **av)
 {
-	int				rules[5];
-	char			*forks;
-	pthread_mutex_t	*mutexes;
-	pthread_t		*philos;
+	t_rules	rules;
+	t_fork	*forks;
+	t_philo	*philos;
+	int		controle;
+	int		i;
 
-	mutexes = NULL;
-	forks = NULL;
-	philos = NULL;
-	if (_init_rules(ac, av, rules)
-		|| _init_forks_and_mutexes(rules[nb_philos], &mutexes, &forks))
+	if (init_rules(ac, av, &rules) || init_forks(&forks, rules.nb_philos))
 		return (1);
-	return (0);
-}
-
-/**
- * @brief Initialisation of the set of rules
- * 
- * @param av 
- * @param rules 
- * @return int	success : 0
- *				failure : 1, wrong arg, err msg displayed
- */
-static int	_init_rules(int ac, char **av, int rules[5])
-{
-	if (ac != 5 && ac != 6)
-		return (printf("Invalid number of arguments\n"), 1);
-	if (ft_atoi_ptr(av[1], rules + nb_philos) || rules[nb_philos] < 1)
-		return (printf("Incorrect number of philosophers\n"), 1);
-	if (ft_atoi_ptr(av[2], rules + time_to_die) || rules[time_to_die] < 0)
-		return (printf("Incorrect time to die\n"), 1);
-	if (ft_atoi_ptr(av[3], rules + time_to_eat) || rules[time_to_eat] < 0)
-		return (printf("Incorrect time to eat\n"), 1);
-	if (ft_atoi_ptr(av[4], rules + time_to_sleep) || rules[time_to_sleep] < 0)
-		return (printf("Incorrect time to sleep\n"), 1);
-	if (!av[5])
-		return (rules[4] = 0, 0);
-	if (ft_atoi_ptr(av[5], rules + nb_of_meals) || rules[nb_of_meals] < 0)
-		return (printf("Incorrect number of time each philosopher must eat\n"),
-			1);
-	return (0);
-}
-
-/**
- * @brief builds generates forks and the associated mutexes
- * 
- * @param nb_fork 
- * @param mutexes 
- * @param forks 
- * @return int	success : 0
- *				failure : 1, mutex init error, err msg displayed
- */
-static int	_init_forks_and_mutexes(int nb_fork, pthread_mutex_t **mutexes,
-	char **forks)
-{
-	int	i;
-
-	*forks = malloc(sizeof(char) * nb_fork);
-	if (!forks)
-		return (printf("malloc error\n"), 1);
-	*mutexes = malloc(sizeof(pthread_mutex_t *) * nb_fork);
-	if (!mutexes)
-		return (free(forks), printf("malloc error\n"), 1);
-	i = -1;
-	while (++i < nb_fork)
+	printf("Rules and forks initialized\n");//
+	philos = NULL;
+	if (init_philos(&philos, &rules, forks))
+		return (unset_forks(&forks, rules.nb_philos), 1);
+	printf ("\n All philos lunched\n\n");//
+	controle = 0;
+	while (controle >= 0 && controle != rules.nb_meals)
 	{
-		(*forks)[i] = 1;
-		if (pthread_mutex_init(*mutexes + i, NULL))
+		controle = 0;
+		i = rules.nb_philos;
+		while (controle >= 0 && --i >= 0)
 		{
-			while (--i >= 0)
-				pthread_mutex_destroy(*mutexes + i);
-			return (free(*mutexes), free(*forks), printf("mutex init error\n"),
-				1);
+			pthread_mutex_lock(&philos[i].life_ctrl_m);
+			if (philos[i].life_ctrl == LC_DEAD)
+				controle = -1;
+			else if (philos[i].life_ctrl == LC_FED)
+				controle++;
+			pthread_mutex_unlock(&philos[i].life_ctrl_m);
 		}
 	}
+	printf("\e[103mONE OF THEM DIED\e[0m\n");//
+	i = rules.nb_philos;
+	while (--i >= 0)
+	{
+		pthread_mutex_lock(&philos[i].life_ctrl_m);
+		philos[i].life_ctrl = LC_DEAD;
+		pthread_mutex_unlock(&philos[i].life_ctrl_m);
+	}
+	unset_philos(&philos, rules.nb_philos);
+	unset_forks(&forks, rules.nb_philos);
 	return (0);
 }
 
-static void	_unset_forks_and_mutexes(int nb_fork, pthread_mutex_t *mutexes,
-	char *forks)
+
+ssize_t	get_time_ms(void)
 {
-	free(forks);
-	while (--nb_fork >= 0)
-	{
-		if (pthread_mutex_destroy(mutexes + nb_fork))
-			printf("error in thread %d destuction\n", nb_fork + 1);
-	}
-	free(mutexes);
+	t_timer	now;
+
+	gettimeofday(&now.tv, &now.tz);
+	return (1000 * now.tv.tv_sec + now.tv.tv_usec / 1000);
 }
 
-static int	_threads_init(	int rules[5], char *forks, pthread_mutex_t *mutexes,
-	pthread_t **philos)
+void	get_status(t_philo *philo, ssize_t t_last_meal, ssize_t t_now,
+	t_status *status)
 {
-	int				i;
-	t_philo_data	philo_data;
+	ssize_t	delay;
 
-	*philos = malloc(sizeof(pthread_t *) * rules[nb_philos]);
-	if (!*philos)
-		return (printf("malloc error\n"), 1);
-	philo_data = (t_philo_data){rules, forks, mutexes, NULL};
-	i = -1;
-	while (++i < rules[nb_philos])
+	delay = t_now - t_last_meal;
+	if (delay < philo->rules->t_eat)
+		return ;
+	if (*status == S_EAT && delay >= philo->rules->t_eat)
 	{
-		philo_data.id = malloc (sizeof(int));
-		if (!philo_data.id)
-		{
-			while (--i >= 0)
-				;//destrucion de (*philos)[i]
-			return (free(*philos), 1);
-		}
-		*(philo_data.id) = i + 1;
-		if (pthread_create((*philos) + i, NULL, &_philo_routine,
-				(void *)&philo_data))
-		{
-			while (--i >= 0)
-				;//destrucion de (*philos)[i]
-			return (free(*philos), free(philo_data.id), 1);
-		}
+		release_forks(philo);
+		printf("\e[1;3%dm%zu %d is sleeping\e[0m\n",philo->id, t_now - philo->t0, philo->id);
+		*status = s_SLEEP;
+		philo->cpt_meal++;
 	}
-	return (0);
+	if (*status == s_SLEEP
+		&& delay >= philo->rules->t_eat + philo->rules->t_sleep)
+		(printf("\e[1;3%dm%zu %d is thinking\e[0m\n",philo->id, t_now - philo->t0, philo->id),
+			*status = S_THINK);
+	if (*status == S_THINK && delay >= philo->rules->t_die)
+		(printf("\e[1;3%dm%zu %d died\e[0m\n",philo->id, t_now - philo->t0, philo->id),
+			*status = S_DEAD);
 }
 
-static void	*_philo_routine(void *arg)
+bool	get_forks(t_philo *philo, t_hand hand, ssize_t t_now)
 {
-	
+	bool	take_fork;
+	t_fork	*target_fork;
+
+	// printf("philo %d entering to take fork %d\n", philo->id, philo->id - (hand == H_LEFT));//
+	target_fork = &philo->forks[(philo->id - (hand == H_LEFT))
+		% philo->rules->nb_philos];
+	pthread_mutex_lock(&target_fork->fork_m);
+	if (target_fork->fork_free == true)
+	{
+		take_fork = true;
+		target_fork->fork_free = false;
+	}
+	else
+		take_fork = false;
+	pthread_mutex_unlock(&target_fork->fork_m);
+	if (take_fork)
+		// printf("%zu %d has taken a fork\n", t_now - philo->t0, philo->id);
+		printf("\t%zu %d HAS TAKEN THE FORK %d\n", t_now - philo->t0, philo->id, (philo->id - (hand == H_LEFT)) % philo->rules->nb_philos);//
+	return (take_fork);
+}
+
+void	release_forks(t_philo *philo)
+{
+	t_fork	*one_fork;
+
+	one_fork = &philo->forks[philo->id - 1];
+	pthread_mutex_lock(&one_fork->fork_m);
+	one_fork->fork_free = true;
+	pthread_mutex_unlock(&one_fork->fork_m);
+	one_fork = &philo->forks[philo->id % philo->rules->nb_philos];
+	pthread_mutex_lock(&one_fork->fork_m);
+	one_fork->fork_free = true;
+	pthread_mutex_unlock(&one_fork->fork_m);
+}
+
+void	*_ph_routine(void *philo)
+{
+	return (_ph_routine_sub((t_philo *) philo));
+}
+
+void	*_ph_routine_sub(t_philo *philo)
+{
+	ssize_t		t_now;
+	ssize_t		t_last_eat;
+	t_status	status;
+
+	printf("\e[101m\nI'm philo %d and i'm awake\e[0m\n\n", philo->id);
+	status = S_THINK;
+	t_last_eat = philo->t0;
+	while (status != S_DEAD)
+	{
+		usleep(5);
+		t_now = get_time_ms();
+		get_status(philo, t_last_eat, t_now, &status);
+		if (status == S_THINK)
+		{
+			if (get_forks(philo, philo->id % 2, t_now))
+			{
+				if (get_forks(philo, (philo->id + 1) % 2, t_now))
+				{
+					printf("\e[1;3%dm%zu %d is eating\e[0m\n",philo->id, t_now - philo->t0, philo->id);
+					t_last_eat = t_now;
+					status = S_EAT;
+				}
+				else
+					release_forks(philo);
+			}
+		}
+		pthread_mutex_lock(&philo->life_ctrl_m);
+		if (philo->life_ctrl == LC_DEAD)
+			break ;
+		else if (status == S_DEAD)
+			philo->life_ctrl = LC_DEAD;
+		else if (philo->rules->nb_meals >= 0 && philo->life_ctrl != LC_FED
+			&& philo->cpt_meal >= philo->rules->nb_meals)
+			philo->life_ctrl = LC_FED;
+		pthread_mutex_unlock(&philo->life_ctrl_m);
+	}
+	printf("\e[101mEnd of %d\e[0m\n", philo->id);
+	return (NULL);
 }

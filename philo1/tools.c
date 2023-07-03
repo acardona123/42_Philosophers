@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/29 23:39:03 by alexcardona       #+#    #+#             */
-/*   Updated: 2023/06/30 22:11:34 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/03 02:40:20 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,4 +66,12 @@ int	ft_atoi_ptr(const char *nptr, int *dst)
 		return (1);
 	*dst = (int) nb;
 	return (0);
+}
+
+ssize_t	get_time_ms(void)
+{
+	t_timer	now;
+
+	gettimeofday(&now.tv, &now.tz);
+	return (1000 * now.tv.tv_sec + now.tv.tv_usec / 1000);
 }

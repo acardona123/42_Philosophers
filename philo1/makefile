@@ -4,7 +4,9 @@ CFLAGS		=	-Wall -Werror -Wextra
 
 SRCS		=	$(addsuffix .c, \
 				main \
-				init_unset \
+				init \
+				unset \
+				routine \
 				tools \
 				)
 
