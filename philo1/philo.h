@@ -6,21 +6,21 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/02 23:24:51 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/03 06:17:53 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/04 18:20:41 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
 
-# include <unistd.h>
 # include <stdio.h>
+# include <unistd.h>
 # include <stdlib.h>
-# include <sys/time.h>
-# include <pthread.h>
 # include <string.h>
 # include <limits.h>
 # include <stdbool.h>
+# include <pthread.h>
+# include <sys/time.h>
 
 typedef enum e_life_control
 {
@@ -82,7 +82,8 @@ typedef enum e_msg_type
 	MSG_DIED,
 	MSG_EAT,
 	MSG_SLEEP,
-	MSG_THINK
+	MSG_THINK,
+	MSG_DEBUG,
 }	t_msg_type;
 
 // tools.c

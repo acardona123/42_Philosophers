@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/03 02:28:45 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/03 06:28:50 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/06 01:02:44 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,8 @@ static void	_update_status(t_philo *philo, ssize_t t_now, ssize_t t_last_eat)
 		_print_msf(philo, t_now, MSG_SLEEP);
 		give_a_fork(philo->shared, philo->id % philo->rules.nb_philos);
 		give_a_fork(philo->shared, philo->id - 1);
-		usleep(100);
+		_print_msf(philo, t_now, MSG_DEBUG);//
+		// usleep(100);
 	}
 	if (philo->status == S_SLEEP && t_now - t_last_eat > philo->rules.t_eat
 		+ philo->rules.t_sleep)
@@ -110,7 +111,9 @@ static void	_print_msf(t_philo *philo, ssize_t t_now, t_msg_type msg_type)
 {
 	char	*msg;
 
-	if (msg_type == MSG_DIED)
+	if (msg_type == MSG_DEBUG)
+		msg = "release forks";
+	else if (msg_type == MSG_DIED)
 		msg = "died";
 	else if (msg_type == MSG_EAT)
 		msg = "is eating";
@@ -138,10 +141,11 @@ static bool	_try_eating(t_philo	*philo, ssize_t t_now, ssize_t *t_last_eat,
 			% philo->rules.nb_philos))
 	{
 		_print_msf(philo, t_now, MSG_FORK);
+		// printf("\t\t#%d\n", (philo->id - *first_hand) % philo->rules.nb_philos);//
+		*first_hand = (*first_hand + 1) % 2;
 		i = 4;
 		while (--i)
 		{
-			*first_hand = (*first_hand + 1) % 2;
 			if (take_a_fork(philo->shared, (philo->id - *first_hand)
 					% philo->rules.nb_philos))
 			{
@@ -151,9 +155,8 @@ static bool	_try_eating(t_philo	*philo, ssize_t t_now, ssize_t *t_last_eat,
 				philo->status = S_EAT;
 				return (true);
 			}
-			usleep (10);//to test, may block the first fork for too much time
 		}
-		give_a_fork(philo->shared, (philo->id - philo->id % 2)
+		give_a_fork(philo->shared, (philo->id - (*first_hand + 1 ) % 2)
 			% philo->rules.nb_philos);
 	}
 	return (false);
