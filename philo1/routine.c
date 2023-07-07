@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/03 02:28:45 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/06 01:02:44 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/06 01:37:09 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static void	_sub_thread_routine_loop(t_philo *philo);
 static void	_update_status(t_philo *philo, ssize_t t_now, ssize_t t_last_eat);
-static void	_print_msf(t_philo *philo, ssize_t t_now, t_msg_type msg_type);
+static void	_print_msg(t_philo *philo, ssize_t t_now, t_msg_type msg_type);
 static bool	_try_eating(t_philo	*philo, ssize_t t_now, ssize_t *t_last_eat,
 				int *first_hand);
 static bool	take_a_fork(t_shared *shared, int id_fork);
@@ -66,26 +66,26 @@ static void	_update_status(t_philo *philo, ssize_t t_now, ssize_t t_last_eat)
 	{
 		philo->status = S_SLEEP;
 		philo->cpt_eat++;
-		_print_msf(philo, t_now, MSG_SLEEP);
+		_print_msg(philo, t_now, MSG_SLEEP);
 		give_a_fork(philo->shared, philo->id % philo->rules.nb_philos);
 		give_a_fork(philo->shared, philo->id - 1);
-		_print_msf(philo, t_now, MSG_DEBUG);//
+		_print_msg(philo, t_now, MSG_DEBUG);//
 		// usleep(100);
 	}
 	if (philo->status == S_SLEEP && t_now - t_last_eat > philo->rules.t_eat
 		+ philo->rules.t_sleep)
 	{
 		philo->status = S_THINK;
-		_print_msf(philo, t_now, MSG_THINK);
+		_print_msg(philo, t_now, MSG_THINK);
 	}
 	if (philo->status == S_THINK && t_now - t_last_eat > philo->rules.t_die)
 	{
 		philo->status = S_DEAD;
-		_print_msf(philo, t_now, MSG_DIED);
+		_print_msg(philo, t_now, MSG_DIED);
 	}
 }
 /*//no colors
-static void	_print_msf(t_philo *philo, ssize_t t_now, t_msg_type msg_type)
+static void	_print_msg(t_philo *philo, ssize_t t_now, t_msg_type msg_type)
 {
 	char	*msg;
 
@@ -107,7 +107,7 @@ static void	_print_msf(t_philo *philo, ssize_t t_now, t_msg_type msg_type)
 	pthread_mutex_unlock(&philo->shared->disp_m);
 }
 */
-static void	_print_msf(t_philo *philo, ssize_t t_now, t_msg_type msg_type)
+static void	_print_msg(t_philo *philo, ssize_t t_now, t_msg_type msg_type)
 {
 	char	*msg;
 
@@ -140,7 +140,7 @@ static bool	_try_eating(t_philo	*philo, ssize_t t_now, ssize_t *t_last_eat,
 	if (take_a_fork(philo->shared, (philo->id - *first_hand)
 			% philo->rules.nb_philos))
 	{
-		_print_msf(philo, t_now, MSG_FORK);
+		_print_msg(philo, t_now, MSG_FORK);
 		// printf("\t\t#%d\n", (philo->id - *first_hand) % philo->rules.nb_philos);//
 		*first_hand = (*first_hand + 1) % 2;
 		i = 4;
@@ -149,8 +149,8 @@ static bool	_try_eating(t_philo	*philo, ssize_t t_now, ssize_t *t_last_eat,
 			if (take_a_fork(philo->shared, (philo->id - *first_hand)
 					% philo->rules.nb_philos))
 			{
-				_print_msf(philo, t_now, MSG_FORK);
-				_print_msf(philo, t_now, MSG_EAT);
+				_print_msg(philo, t_now, MSG_FORK);
+				_print_msg(philo, t_now, MSG_EAT);
 				*t_last_eat = t_now;
 				philo->status = S_EAT;
 				return (true);
