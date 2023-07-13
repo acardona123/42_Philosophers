@@ -7,6 +7,7 @@ SRCS		=	$(addsuffix .c, \
 				init \
 				unset \
 				routine \
+				routine1 \
 				tools \
 				)
 

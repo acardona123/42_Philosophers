@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/03 00:30:53 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/06 22:37:46 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/13 01:01:44 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ void	unset_forks(t_shared *shared, int nb_of_forks)
 {
 	while (--nb_of_forks >= 0)
 		pthread_mutex_destroy(&shared->fork_m[nb_of_forks]);
-	pthread_mutex_destroy(&shared->fork_m[nb_of_forks]);
 	free(shared->fork_m);
 	free(shared->fork_ok);
 }

@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/02 23:40:53 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/07 01:34:24 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/12 23:16:21 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,11 @@ static int	_init_and_start_philos(t_shared *shared, t_rules *rules);
 int	init_and_start(int ac, char **av, t_rules *rules, t_shared *shared)
 {
 	if (_init_rules(ac, av, rules))
-		return (printf("TOTO1\n"), 1);//
+		return (1);
 	if (_init_shared(shared, rules))
-		return (printf("TOTO2\n"), 1);//
+		return (1);
 	if (_init_and_start_philos(shared, rules))
-		return (unset_shared(shared, rules), printf("TOTO3\n"), 1);//
+		return (unset_shared(shared, rules), 1);
 	return (0);
 }
 
@@ -44,23 +44,22 @@ static int	_init_rules(int ac, char **av, t_rules *rules)
  ./philo nb_of_philo t_die t_eat t_sleep [nb_meals_per_philo]\n"), 1);
 	if (ft_atoi_ptr(av[1], &rules->nb_philos) || rules->nb_philos < 1)
 		return (printf("Invalid number of philosophers\n"), 1);
-	if (ft_atozu_ptr(av[2], &rules->t_die) || rules->t_die < 0)
+	if (ft_atozu_ptr(av[2], &rules->t_die))
 		return (printf("Invalid time to die\n"), 1);
-	if (ft_atozu_ptr(av[3], &rules->t_eat) || rules->t_eat < 0)
+	if (ft_atozu_ptr(av[3], &rules->t_eat))
 		return (printf("Invalid time to eat\n"), 1);
-	if (ft_atozu_ptr(av[4], &rules->t_sleep) || rules->t_sleep < 0)
+	if (ft_atozu_ptr(av[4], &rules->t_sleep))
 		return (printf("Invalid time to sleep\n"), 1);
 	if (rules->nb_philos % 2 == 0)
 		rules->t_cycle = 2 * rules->t_eat;
 	else
 		rules->t_cycle = 3 * rules->t_eat;
-	rules->t_cycle = ft_max_zu(rules->t_eat + rules->t_sleep, rules->t_cycle);//+1000
+	rules->t_cycle = ft_max_zu(rules->t_eat + rules->t_sleep, rules->t_cycle);
 	if (ac == 5)
 		rules->nb_meals = -1;
 	else if (ft_atoi_ptr(av[5], &rules->nb_meals) || rules->nb_meals < 0)
 		return (printf("Invalid number of time each philosopher must eat\n")
 			, 1);
-printf("\e[103mRules :\n  nb_philos: %d\n  time_to_die: %zu\n  time_to_eat: %zu\n  time_to_sleep: %zu\n  nb_of_meals: %d\n  t_cycle: %zu\e[0m\n\n", rules->nb_philos, rules->t_die, rules->t_eat, rules->t_sleep, rules->nb_meals, rules->t_cycle);//
 	return (0);
 }
 

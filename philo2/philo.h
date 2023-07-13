@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/02 23:24:51 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/07 01:21:26 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/12 23:13:49 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,11 +94,8 @@ int		ft_strncmp(const char *s1, const char *s2, size_t n);
 int		ft_atoi_ptr(const char *nptr, int *dst);
 int		ft_atozu_ptr(const char *nptr, size_t *dst);
 size_t	ft_max_zu(size_t n1, size_t n2);
-size_t	get_time_ms(void);
-void	print_msg(t_philo *philo, size_t t_now, t_msg_type msg_type);
-void	print_msg_fork(t_philo *philo, size_t t_now, t_msg_type msg_type, int data);//==============================
 
-//	init.c
+// init.c
 int		init_and_start(int ac, char **av, t_rules *rules, t_shared *shared);
 
 //unset.c
@@ -108,5 +105,13 @@ void	unset_shared(t_shared *shared, t_rules *rules);
 
 //routine.c
 void	*thread_routine_start(void *philo);
+
+//routine1.c
+bool	eat(t_philo *philo, size_t t_now, size_t *t_last_eat,
+			char *have_forks);
+bool	take_a_fork(t_shared *shared, int id_fork);
+bool	give_a_fork(t_shared *shared, int id_fork);
+size_t	get_time_ms(void);
+void	print_msg(t_philo *philo, size_t t_now, t_msg_type msg_type);
 
 #endif
