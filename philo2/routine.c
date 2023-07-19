@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alexcardona <alexcardona@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/03 02:28:45 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/12 23:07:21 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/18 11:57:35 by alexcardona      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ static void	_sub_thread_routine_loop(t_philo *philo)
 			&& philo->cpt_eat >= philo->rules.nb_meals)
 			philo->life_ctrl = LC_FED;
 		pthread_mutex_unlock(&philo->life_ctrl_m);
+		usleep(400);
 	}
 }
 
@@ -82,7 +83,7 @@ static void	_update_status(t_philo *philo, size_t t_now, size_t delay,
 		philo->status = S_THINK;
 		print_msg(philo, t_now, MSG_THINK);
 	}
-	if (philo->status == S_THINK && delay >= philo->rules.t_die)
+	if (delay >= philo->rules.t_die)
 	{
 		philo->status = S_DEAD;
 		print_msg(philo, t_now, MSG_DIED);

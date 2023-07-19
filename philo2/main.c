@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alexcardona <alexcardona@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/02 23:37:57 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/07 00:23:15 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/19 13:04:53 by alexcardona      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,6 @@ static void	_check_philos_alive(t_rules rules, t_philo *philos)
 			all_alive = (lc != LC_DEAD);
 			cpt_fed += (lc == LC_FED);
 		}
-		usleep(300);
+		usleep(1000);
 	}
 }
