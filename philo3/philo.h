@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/02 23:24:51 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/19 18:46:16 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/21 18:41:53 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,10 @@
 # include <pthread.h>
 # include <sys/time.h>
 
-# define USLEEP_RESOLUTION_US 10
+# define USLEEP_RESOLUTION_US 200
+# define USLEEP_CHECKER_US 3000
+# define DISPLAY_END_MSG 1
+# define COLOR 0
 
 typedef struct s_rules
 {
@@ -47,13 +50,17 @@ typedef struct s_shared
 typedef struct s_philo
 {
 	int				id;
+	int				group;
 	t_shared		*shared;
 	t_rules			rules;
 	pthread_t		thread;
+	int				fork_id_l;
+	int				fork_id_r;
 	size_t			t0;
-	size_t			t_last_eat;
-	int				cpt_eat;
+	size_t			loc_t_last_eat;
 	pthread_mutex_t	data_eat_m;
+	size_t			data_eat_t_last;
+	int				data_eat_cpt;
 }	t_philo;
 
 typedef struct s_timer
@@ -69,6 +76,7 @@ typedef enum e_msg_type
 	MSG_EAT,
 	MSG_SLEEP,
 	MSG_THINK,
+	MSG_ERROR,
 	MSG_DEBUG,
 }	t_msg_type;
 
@@ -84,7 +92,8 @@ int		init_and_start(int ac, char **av, t_rules *rules, t_shared *shared);
 
 //unset.c
 void	unset_forks(t_shared *shared, int nb_of_forks);
-void	stop_and_unset_philos(t_shared *shared, int nb_of_philo, bool init);
+void	stop_and_unset_philos(t_shared *shared, int nb_of_threads,
+			int rule_nb_philo, bool init);
 void	unset_shared(t_shared *shared, t_rules *rules);
 
 //routine.c
@@ -92,6 +101,7 @@ void	*thread_routine(void *philo);
 
 // print_msg.c
 void	print_msg(t_philo *philo, size_t t_now, t_msg_type msg_type);
+void	printf_end_msg(t_shared *shared);
 
 // time.c
 size_t	get_time_ms(void);

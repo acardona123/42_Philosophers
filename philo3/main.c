@@ -6,13 +6,13 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/02 23:37:57 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/19 18:53:24 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/21 16:54:14 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static void	_check_philos(t_rules rules, t_philo *philos);
+static int	_check_philos(t_rules rules, t_philo *philos);
 
 int	main(int ac, char **av)
 {
@@ -23,33 +23,38 @@ int	main(int ac, char **av)
 	shared = (t_shared){0};
 	if (init_and_start(ac, av, &rules, &shared))
 		return (1);
-	my_usleep(19000);
-	_check_philos(rules, (t_philo *)(shared.philos));
-	stop_and_unset_philos(&shared, rules.nb_philos, false);
+	if (!_check_philos(rules, (t_philo *)(shared.philos)) && DISPLAY_END_MSG)
+		printf_end_msg(&shared);
+	stop_and_unset_philos(&shared, rules.nb_philos, rules.nb_philos, false);
 	unset_shared(&shared, &rules);
 	return (0);
 }
 
-static void	_check_philos(t_rules rules, t_philo *philos)
+static int	_check_philos(t_rules rules, t_philo *philos)
 {
 	int		cpt;
 	int		i;
 	size_t	t_now;
 
 	cpt = 0;
-	while (cpt >= 0 && (rules.nb_meals < 0 || cpt < rules.nb_meals))
+	while (rules.nb_meals < 0 || cpt < rules.nb_philos)
 	{
-		cpt = 0;
+		(usleep(USLEEP_CHECKER_US), cpt = 0);
 		i = -1;
-		while (cpt >= 0 && ++i < rules.nb_philos)
+		while (++i < rules.nb_philos)
 		{
 			t_now = get_time_ms();
 			pthread_mutex_lock(&philos[i].data_eat_m);
-			if (rules.nb_meals >= 0 && philos[i].cpt_eat >= rules.nb_meals)
+			if (rules.nb_meals >= 0 && philos[i].data_eat_cpt >= rules.nb_meals)
 				cpt ++;
-			if (t_now >= rules.t_die + philos[i].t_last_eat)
-				(print_msg(&philos[i], t_now, MSG_DIED), cpt = -1);
+			if (t_now >= philos[i].data_eat_t_last + rules.t_die)
+			{
+				print_msg(&philos[i], t_now, MSG_DIED);
+				pthread_mutex_unlock(&philos[i].data_eat_m);
+				return (1);
+			}
 			pthread_mutex_unlock(&philos[i].data_eat_m);
 		}
 	}
+	return (0);
 }
