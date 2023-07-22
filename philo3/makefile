@@ -1,8 +1,9 @@
 NAME		=	philo
 CC			=	cc
-CFLAGS		=	-Wall -Werror -Wextra -g
+CFLAGS		=	-Wall -Werror -Wextra
 
 SRCS		=	$(addsuffix .c, \
+				forks \
 				init \
 				main \
 				print_msg \

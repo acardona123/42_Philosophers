@@ -6,17 +6,24 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/03 00:30:53 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/21 15:56:57 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/21 19:35:59 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	unset_forks(t_shared *shared, int nb_of_forks)
+void	unset_shared(t_shared *shared, t_rules *rules)
+{
+	pthread_mutex_destroy(&shared->all_alive_m);
+	pthread_mutex_destroy(&shared->start_m);
+	unset_fork(shared, rules->nb_philos);
+}
+
+void	unset_fork(t_shared *shared, int nb_of_forks)
 {
 	while (--nb_of_forks >= 0)
-		pthread_mutex_destroy(&shared->fork_m[nb_of_forks]);
-	free(shared->fork_m);
+		pthread_mutex_destroy(&shared->forks[nb_of_forks].fork_m);
+	free(shared->forks);
 }
 
 void	stop_and_unset_philos(t_shared *shared, int nb_of_threads,
@@ -36,6 +43,7 @@ void	stop_and_unset_philos(t_shared *shared, int nb_of_threads,
 	i = -1;
 	while (++i < nb_of_threads)
 	{
+		release_fork(shared->forks, i);
 		pthread_join((((t_philo *)(shared->philos))[i]).thread, 0);
 		pthread_mutex_destroy(&(((t_philo *)(shared->philos))[i]).data_eat_m);
 	}
@@ -46,11 +54,4 @@ void	stop_and_unset_philos(t_shared *shared, int nb_of_threads,
 	}
 	free(shared->philos);
 	shared->philos = NULL;
-}
-
-void	unset_shared(t_shared *shared, t_rules *rules)
-{
-	pthread_mutex_destroy(&shared->all_alive_m);
-	pthread_mutex_destroy(&shared->start_m);
-	unset_forks(shared, rules->nb_philos);
 }
