@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/29 23:39:03 by alexcardona       #+#    #+#             */
-/*   Updated: 2023/07/12 23:11:31 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/23 15:54:04 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,15 +77,18 @@ int	ft_atozu_ptr(const char *nptr, size_t *dst)
 		return (1);
 	if (nptr[0] == '-')
 		return (1);
-	i = (nptr[0] == '+');
-	if (ft_strlen(nptr + i) > 10)
+	nptr += (nptr[0] == '+');
+	if (ft_strlen(nptr) > 10)
 		return (1);
+	i = 0;
 	nb = 0;
 	while (nptr[i] >= '0' && nptr[i] <= '9')
 	{
 		nb = nb * 10 + nptr[i] - '0';
 		i++;
 	}
+	if (nptr[i] || i == 0)
+		return (1);
 	if (nb > INT_MAX || nb < INT_MIN)
 		return (1);
 	*dst = (size_t) nb;

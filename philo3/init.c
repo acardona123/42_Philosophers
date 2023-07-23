@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/02 23:40:53 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/21 19:34:41 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/22 17:40:51 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,13 +33,14 @@ static int	_init_rules(int ac, char **av, t_rules *rules)
 	if (ac != 5 && ac != 6)
 		return (printf("Invalid number of arguments, expects :\n\
  ./philo nb_of_philo t_die t_eat t_sleep [nb_meals_per_philo]\n"), 1);
-	if (ft_atoi_ptr(av[1], &rules->nb_philos) || rules->nb_philos < 1)
+	if (ft_atoi_ptr(av[1], &rules->nb_philos) || rules->nb_philos < 1
+		|| (MAX_NB_PHILO && rules->nb_philos > MAX_NB_PHILO))
 		return (printf("Invalid number of philosophers\n"), 1);
-	if (ft_atozu_ptr(av[2], &rules->t_die))
+	if (ft_atozu_ptr(av[2], &rules->t_die) || rules->t_die < MIN_T)
 		return (printf("Invalid time to die\n"), 1);
-	if (ft_atozu_ptr(av[3], &rules->t_eat))
+	if (ft_atozu_ptr(av[3], &rules->t_eat) || rules->t_eat < MIN_T)
 		return (printf("Invalid time to eat\n"), 1);
-	if (ft_atozu_ptr(av[4], &rules->t_sleep))
+	if (ft_atozu_ptr(av[4], &rules->t_sleep) || rules->t_sleep < MIN_T)
 		return (printf("Invalid time to sleep\n"), 1);
 	if (rules->nb_philos % 2 == 0)
 		rules->t_cycle = 2 * rules->t_eat;
@@ -48,7 +49,7 @@ static int	_init_rules(int ac, char **av, t_rules *rules)
 	rules->t_cycle = ft_max_zu(rules->t_eat + rules->t_sleep, rules->t_cycle);
 	if (ac == 5)
 		rules->nb_meals = -1;
-	else if (ft_atoi_ptr(av[5], &rules->nb_meals) || rules->nb_meals < 0)
+	else if (ft_atoi_ptr(av[5], &rules->nb_meals) || rules->nb_meals <= 0)
 		return (printf("Invalid number of time each philosopher must eat\n")
 			, 1);
 	return (0);

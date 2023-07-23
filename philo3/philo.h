@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/02 23:24:51 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/21 19:59:55 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/22 17:39:21 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,12 @@
 # include <pthread.h>
 # include <sys/time.h>
 
+# define MIN_T 60 
+# define MAX_NB_PHILO 200
+
 # define USLEEP_RESOLUTION_US 240
 # define USLEEP_CHECKER_US 3000
+
 # define DISPLAY_END_MSG 0
 # define COLOR 0
 
