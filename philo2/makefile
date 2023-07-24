@@ -1,6 +1,6 @@
 NAME		=	philo
 CC			=	cc
-CFLAGS		=	-Wall -Werror -Wextra -g
+CFLAGS		=	-Wall -Werror -Wextra
 
 SRCS		=	$(addsuffix .c, \
 				main \
@@ -11,7 +11,7 @@ SRCS		=	$(addsuffix .c, \
 				tools \
 				)
 
-OBJS		=	$(SRCS:.c=.o)
+OBJS		=	$(addprefix obj/, $(patsubst %.c, %.o, $(SRCS)))
 INCLUDES	=	philo.h
 
 all : $(NAME)
@@ -19,11 +19,12 @@ all : $(NAME)
 $(NAME) : $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -lpthread -o $(NAME)
 
-%.o : %.c $(INCLUDES)
+obj/%.o : %.c $(INCLUDES)
+	mkdir -p obj/
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean :
-	rm -rf $(OBJS)
+	rm -rf obj/
 
 fclean : clean
 	rm -rf $(NAME)

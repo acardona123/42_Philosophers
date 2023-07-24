@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/12 23:06:15 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/12 23:14:25 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/24 15:54:37 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,6 @@ size_t	get_time_ms(void)
 	return (1000 * now.tv.tv_sec + now.tv.tv_usec / 1000);
 }
 
-// /*//no colors
 void	print_msg(t_philo *philo, size_t t_now, t_msg_type msg_type)
 {
 	char	*msg;
@@ -85,36 +84,12 @@ void	print_msg(t_philo *philo, size_t t_now, t_msg_type msg_type)
 	else
 		msg = "has taken a fork";
 	pthread_mutex_lock(&philo->shared->disp_m);
-	if (philo->shared->disp_ok)
+	if (philo->shared->disp_ok && COLOR)
+		printf("%zu\e[1;10%dm %d \e[0m\e[3%dm%s\e[0m\n", t_now - philo->t0,
+			philo->id, philo->id, msg_type, msg);
+	else if (philo->shared->disp_ok)
 		printf("%zu %d %s\n", t_now - philo->t0, philo->id, msg);
 	if (msg_type == MSG_DIED)
 		philo->shared->disp_ok = false;
 	pthread_mutex_unlock(&philo->shared->disp_m);
 }
-// */
-/*
-void	print_msg(t_philo *philo, size_t t_now, t_msg_type msg_type)
-{
-	char	*msg;
-
-	if (msg_type == MSG_DEBUG)
-		msg = "release forks";
-	else if (msg_type == MSG_DIED)
-		msg = "died";
-	else if (msg_type == MSG_EAT)
-		msg = "is eating";
-	else if (msg_type == MSG_SLEEP)
-		msg = "is sleeping";
-	else if (msg_type == MSG_THINK)
-		msg = "is thinking";
-	else
-		msg = "has taken a fork";
-	pthread_mutex_lock(&philo->shared->disp_m);
-	if (philo->shared->disp_ok)
-		printf("%zu\e[1;10%dm %d \e[0m\e[3%dm%s\e[0m\n", t_now - philo->t0,
-			philo->id, philo->id, msg_type, msg);
-	if (msg_type == MSG_DIED)
-		philo->shared->disp_ok = false;
-	pthread_mutex_unlock(&philo->shared->disp_m);
-}
-*/

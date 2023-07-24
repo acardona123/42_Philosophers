@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/02 23:24:51 by acardona          #+#    #+#             */
-/*   Updated: 2023/07/12 23:13:49 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/24 15:52:49 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@
 # include <stdbool.h>
 # include <pthread.h>
 # include <sys/time.h>
+
+# define T_MIN 60
+# define COLOR 0
 
 typedef enum e_life_controle
 {
