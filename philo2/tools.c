@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/29 23:39:03 by alexcardona       #+#    #+#             */
-/*   Updated: 2023/07/24 15:30:42 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/24 18:39:42 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int	ft_atoi_ptr(const char *nptr, int *dst)
 		nb = nb * 10 + nptr[i] - '0';
 		i++;
 	}
-	if (nb > INT_MAX || nb < INT_MIN)
+	if (nb > INT_MAX || nb < INT_MIN || nptr[i])
 		return (1);
 	*dst = (int) nb;
 	return (0);
