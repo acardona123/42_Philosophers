@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/29 23:39:03 by alexcardona       #+#    #+#             */
-/*   Updated: 2023/06/30 22:11:34 by acardona         ###   ########.fr       */
+/*   Updated: 2023/07/23 15:54:04 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,9 @@ int	ft_atoi_ptr(const char *nptr, int *dst)
 
 	if (!nptr || !dst)
 		return (1);
-	i = (nptr[0] == '+' || nptr[0] == '-');
+	if (nptr[0] == '-')
+		return (1);
+	i = (nptr[0] == '+');
 	if (ft_strlen(nptr + i) > 10)
 		return (1);
 	nb = 0;
@@ -60,10 +62,42 @@ int	ft_atoi_ptr(const char *nptr, int *dst)
 		nb = nb * 10 + nptr[i] - '0';
 		i++;
 	}
-	if (nptr[0] == '-')
-		nb *= -1;
 	if (nb > INT_MAX || nb < INT_MIN)
 		return (1);
 	*dst = (int) nb;
 	return (0);
+}
+
+int	ft_atozu_ptr(const char *nptr, size_t *dst)
+{
+	int		i;
+	ssize_t	nb;
+
+	if (!nptr || !dst)
+		return (1);
+	if (nptr[0] == '-')
+		return (1);
+	nptr += (nptr[0] == '+');
+	if (ft_strlen(nptr) > 10)
+		return (1);
+	i = 0;
+	nb = 0;
+	while (nptr[i] >= '0' && nptr[i] <= '9')
+	{
+		nb = nb * 10 + nptr[i] - '0';
+		i++;
+	}
+	if (nptr[i] || i == 0)
+		return (1);
+	if (nb > INT_MAX || nb < INT_MIN)
+		return (1);
+	*dst = (size_t) nb;
+	return (0);
+}
+
+size_t	ft_max_zu(size_t n1, size_t n2)
+{
+	if (n1 > n2)
+		return (n1);
+	return (n2);
 }

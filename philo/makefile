@@ -3,9 +3,14 @@ CC			=	cc
 CFLAGS		=	-Wall -Werror -Wextra
 
 SRCS		=	$(addsuffix .c, \
+				forks \
+				init \
 				main \
-				init_unset \
+				print_msg \
+				routine \
+				time \
 				tools \
+				unset \
 				)
 
 OBJS		=	$(SRCS:.c=.o)

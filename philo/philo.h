@@ -5,71 +5,72 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/06/29 16:54:25 by alexcardona       #+#    #+#             */
-/*   Updated: 2023/07/03 05:04:53 by acardona         ###   ########.fr       */
+/*   Created: 2023/07/02 23:24:51 by acardona          #+#    #+#             */
+/*   Updated: 2023/07/22 17:39:21 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
 
-# include <unistd.h>
 # include <stdio.h>
+# include <unistd.h>
 # include <stdlib.h>
-# include <sys/time.h>
-# include <pthread.h>
 # include <string.h>
 # include <limits.h>
 # include <stdbool.h>
+# include <pthread.h>
+# include <sys/time.h>
 
-typedef enum e_status
-{
-	S_EAT,
-	s_SLEEP,
-	S_THINK,
-	S_DEAD
-}	t_status;
+# define MIN_T 60 
+# define MAX_NB_PHILO 200
 
-typedef enum e_life_control
-{
-	LC_HUNGRY,
-	LC_FED,
-	LC_DEAD
-}	t_life_controle;
+# define USLEEP_RESOLUTION_US 240
+# define USLEEP_CHECKER_US 3000
 
-typedef enum e_hand
-{
-	H_LEFT,
-	H_RIGHT
-}	t_hand;
+# define DISPLAY_END_MSG 0
+# define COLOR 0
 
 typedef struct s_rules
 {
-	int	nb_philos;
-	int	t_die;
-	int	t_eat;
-	int	t_sleep;
-	int	nb_meals;
+	int		nb_philos;
+	size_t	t_die;
+	size_t	t_eat;
+	size_t	t_sleep;
+	size_t	t_cycle;
+	int		nb_meals;
 }	t_rules;
 
 typedef struct s_fork
 {
-	bool			fork_free;
+	bool			fork_dispo;
 	pthread_mutex_t	fork_m;
 }	t_fork;
+
+typedef struct s_shared
+{
+	size_t			start_t;
+	pthread_mutex_t	start_m;
+	bool			all_alive;
+	pthread_mutex_t	all_alive_m;
+	t_fork			*forks;
+	void			*philos;
+}	t_shared;
 
 typedef struct s_philo
 {
 	int				id;
-	t_rules			*rules;
-	t_fork			*forks;
-	ssize_t			*disp_ok;
-	pthread_mutex_t	*disp_m;
-	ssize_t			t0;
-	t_life_controle	life_ctrl;
-	pthread_mutex_t	life_ctrl_m;
-	int				cpt_meal;
+	int				group;
+	t_shared		*shared;
+	t_rules			rules;
 	pthread_t		thread;
+	int				fork_id_l;
+	int				fork_id_r;
+	size_t			t0;
+	size_t			loc_t_last_eat;
+	pthread_mutex_t	data_eat_m;
+	size_t			data_eat_t_last;
+	int				data_eat_cpt;
 }	t_philo;
 
 typedef struct s_timer
@@ -78,30 +79,47 @@ typedef struct s_timer
 	struct timezone	tz;
 }	t_timer;
 
-// main.c
-
-//init_unset.c
-int		init_rules(int ac, char **av, t_rules *rules);
-int		init_forks(t_fork **forks, int nb_philos);
-void	unset_forks(t_fork **forks, int nb_fork_to_unset);
-int		init_philos(t_philo **philos, t_rules *rules, t_fork *forks);
-void	unset_philos(t_philo **philos, int nb_philos);
+typedef enum e_msg_type
+{
+	MSG_FORK,	
+	MSG_DIED,
+	MSG_EAT,
+	MSG_SLEEP,
+	MSG_THINK,
+	MSG_ERROR,
+	MSG_DEBUG,
+}	t_msg_type;
 
 // tools.c
 size_t	ft_strlen(const char *str);
 int		ft_strncmp(const char *s1, const char *s2, size_t n);
 int		ft_atoi_ptr(const char *nptr, int *dst);
+int		ft_atozu_ptr(const char *nptr, size_t *dst);
+size_t	ft_max_zu(size_t n1, size_t n2);
 
+// init.c
+int		init_and_start(int ac, char **av, t_rules *rules, t_shared *shared);
 
+//unset.c
+void	unset_shared(t_shared *shared, t_rules *rules);
+void	unset_fork(t_shared *shared, int nb_of_forks);
+void	stop_and_unset_philos(t_shared *shared, int nb_of_threads,
+			int rule_nb_philo, bool init);
 
+//routine.c
+void	*thread_routine(void *philo);
 
-//=========== TMP  =================
-ssize_t	get_time_ms(void);
-void	get_status(t_philo *philo, ssize_t t_last_meal, ssize_t t_now,
-			t_status *status);
-bool	get_forks(t_philo *philo, t_hand hand, ssize_t delay);
-void	release_forks(t_philo *philo);
-void	*_ph_routine(void *arg);
-void	*_ph_routine_sub(t_philo *philo);
+//forks.c
+void	take_fork(t_fork *forks, int id_fork);
+void	release_fork(t_fork *forks, int id_fork);
+
+// print_msg.c
+void	print_msg(t_philo *philo, size_t t_now, t_msg_type msg_type);
+void	printf_end_msg(t_shared *shared);
+
+// time.c
+size_t	get_time_ms(void);
+size_t	get_time_us(void);
+void	my_usleep(int delay);
 
 #endif
