@@ -56,17 +56,17 @@ No condition variables, no semaphores, no atomics, no `nanosleep`.
 Each fork is a mutex guarding an availability flag.
 Taking one means locking the mutex, reading the flag, then claiming it or unlocking and retrying later.
 
-A philosopher waiting for a fork therefore never sleeps holding another fork's mutex : after having read and potentially updated the fork availability it unlocck the mutex.
+A philosopher waiting for a fork therefore never sleeps holding another fork's mutex: after having read and potentially updated the fork availability it unlocks the mutex.
 
 Everyone reaches in the same order, left fork then right fork. That is exactly the order that deadlocks if the whole table reaches at once, which is what the staggered start is for.
 
 ### Starting the cycle
 
 The first round of contention comes out alternating rather than simultaneous: 
-- Philosophers with even id start eating (taking the forks) first, odd ones wil wait `time_to_eat` before trying to reach for forks.
+- Philosophers with even id start eating (taking the forks) first, odd ones will wait `time_to_eat` before trying to reach for forks.
 - With an odd number of philosophers, the last one waits twice as long to avoid competition with the first philosopher.
 
-The point of this schedulling is only to enter the loop in a workable phase. From there the locks handle contention normally.
+The point of this scheduling is only to enter the loop in a workable phase. From there the locks handle contention normally.
 
 ### Spacing out the attempts
 
@@ -93,7 +93,7 @@ The philosophers are spread across threads and, by the rules of the problem, bli
 ### Time
 
 Every rule in this project is a deadline, so a delay that no ordinary program would notice is enough to kill someone here.
-`usleep` is not precise enough on its own: it returns no earlier than asked and promises nothing about how much later, and on tight parameters that overshoot alone can push a philosopher past `time_to_die`. Waiting is therefore not delegated to it. Every wait is a poll of `gettimeofday` in micro steps until the target timestamp is actually reached, so the simulation is paced against the clock rather than against the scheduler. The delay corresponding to this steps is a test-defined value compromizing precision and ressource consumption.
+`usleep` is not precise enough on its own: it returns no earlier than asked and promises nothing about how much later, and on tight parameters that overshoot alone can push a philosopher past `time_to_die`. Waiting is therefore not delegated to it. Every wait is a poll of `gettimeofday` in micro steps until the target timestamp is actually reached, so the simulation is paced against the clock rather than against the scheduler. The length of those steps was settled by testing, as a compromise between precision and the CPU spent checking the clock.
 
 Those timestamps are also only comparable if they are counted from the same instant. Threads are created before the simulation starts and wait on a shared start timestamp before running their first meal, so every philosopher measures from the same origin and the log reads as one timeline instead of several. That same shared value doubles as an abort sentinel: if a thread fails to be created, setting it to a sentinel releases the ones already waiting and they exit without ever starting.
 
